@@ -68,8 +68,11 @@ public:
     int GetCapacity() const {
         return capacity;
     }
-
     void To_String() const override {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
         if (length == 0) {
             std::cout << "[]\n";
             return;
@@ -83,7 +86,6 @@ public:
         }
         std::cout << "]\n";
     }
-
     void To_String_All() const {
         if (capacity == 0) {
             std::cout << "[]\n";
@@ -98,11 +100,9 @@ public:
         }
         std::cout << "]\n";
     }
-
     int GetCorrect() const {
         return correct;
     }
-
     AdaptiveSequence<T>* GetSubsequence(int startIndex, int endIndex) const override {
         if (startIndex < 0 || endIndex >= length || startIndex > endIndex) {
             throw std::out_of_range("Invalid subsequence range");
@@ -113,7 +113,6 @@ public:
         }
         return subArr;
     }
-
     AdaptiveSequence<T>* Set(T value, int index) override {
         if (index < 0 || index >= length) {
             throw std::out_of_range("Index out of bounds");
@@ -125,7 +124,6 @@ public:
         data[actualIndex] = value;
         return this;
     }
-
     AdaptiveSequence<T>* InsertAt(T item, int index) override {
         if (index < 0 || index > length) {
             throw std::out_of_range("Index out of bounds");
@@ -140,7 +138,6 @@ public:
         length++;
         return this;
     }
-
     void Resize(int newSize) {
         if (newSize < 0) {
             throw std::out_of_range("Size cannot be negative");
@@ -172,7 +169,6 @@ public:
         capacity = newSize;
         correct = newCorrect;
     }
-
     AdaptiveSequence<T>* Append(T value) override {
         if (correct + length >= capacity) {
             int newSize = (capacity == 0) ? 1 : 2 * capacity;
@@ -186,7 +182,6 @@ public:
         length++;
         return this;
     }
-
     AdaptiveSequence<T>* Prepend(T value) override {
         if (correct <= 0 || length >= capacity) {
             int newSize = (capacity == 0) ? 1 : 2 * capacity;
@@ -201,7 +196,6 @@ public:
         length++;
         return this;
     }
-
     AdaptiveSequence<T>* Concat(Sequence<T>* other) const override {
         AdaptiveSequence<T>* result = new AdaptiveSequence<T>(0);
         for (int i = 0; i < length; i++) {
@@ -212,7 +206,6 @@ public:
         }
         return result;
     }
-
     AdaptiveSequence<T>* Map(Func_T<T> func) const override {
         AdaptiveSequence<T>* result = new AdaptiveSequence<T>(0);
         for (int i = 0; i < length; i++) {
@@ -220,7 +213,6 @@ public:
         }
         return result;
     }
-
     AdaptiveSequence<T>* Where(Func_T_bool<T> predicate) const override {
         AdaptiveSequence<T>* result = new AdaptiveSequence<T>(0);
         for (int i = 0; i < length; i++) {
@@ -230,7 +222,6 @@ public:
         }
         return result;
     }
-
     T Reduce(Func_T_T<T> func, T start) const override {
         T result = start;
         for (int i = 0; i < length; i++) {
@@ -245,14 +236,12 @@ public:
         }
         return data[index + correct];
     }
-
     const T& operator[](int index) const {
         if (index >= length) {
             throw std::out_of_range("Index out of bounds");
         }
         return data[index + correct];
     }
-
     friend std::ostream& operator<<(std::ostream& os, const AdaptiveSequence<T>& arr) {
         os << "[";
         for (int i = 0; i < arr.length; i++) {

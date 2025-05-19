@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "BinaryTree.h"
-
+#include <algorithm>
 void testBinaryTreeRemove() {
     std::cout << "=== Binary Tree Deletion Testing ===\n";
 
@@ -327,9 +327,391 @@ void testBinaryTreeReduce() {
         std::cout << "Failed with unexpected exception: " << e.what() << "\n";
     }
 }
-void testBinaryTree() {
-    std::cout << "=== Testing BinaryTree ===\n";
+void testBinaryTreeMap() {
+    std::cout << "=== Binary Tree Map Testing ===\n";
 
+    // Test 1: Map integers to their squares
+    try {
+        BinaryTree<int> tree;
+        tree.add(2)->add(3)->add(1);
+        BinaryTree<int>* result = tree.map<int>([](const int& x) { return x * x; });
+        Sequence<int>* lnr = result->LNR();
+        ArraySequence<int>* arrSeq = dynamic_cast<ArraySequence<int>*>(lnr);
+        std::cout << "Test 1: Map to squares - ";
+        if (arrSeq && arrSeq->GetLength() == 3 && arrSeq->Get(0) == 1 && arrSeq->Get(1) == 4 && arrSeq->Get(2) == 9) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 1: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 2: Map integers to strings
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2)->add(3);
+        BinaryTree<std::string>* result = tree.map<std::string>([](const int& x) { return std::to_string(x); });
+        Sequence<std::string>* lnr = result->LNR();
+        ArraySequence<std::string>* arrSeq = dynamic_cast<ArraySequence<std::string>*>(lnr);
+        std::cout << "Test 2: Map to strings - ";
+        if (arrSeq && arrSeq->GetLength() == 3 && arrSeq->Get(0) == "1" && arrSeq->Get(1) == "2" && arrSeq->Get(2) == "3") {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 2: FAILED with exception: " << e.what() << "\n";
+    }
+
+    // Test 3: Empty tree mapping
+    try {
+        BinaryTree<int> tree;
+        BinaryTree<int>* result = tree.map<int>([](const int& x) { return x + 1; });
+        Sequence<int>* lnr = result->LNR();
+        std::cout << "Test 3: Empty tree mapping - ";
+        if (lnr && lnr->GetLength() == 0) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 4: Original tree unchanged
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2)->add(3);
+        BinaryTree<int>* result = tree.map<int>([](const int& x) { return x + 1; });
+        Sequence<int>* lnr = tree.LNR();
+        ArraySequence<int>* arrSeq = dynamic_cast<ArraySequence<int>*>(lnr);
+        std::cout << "Test 4: Original tree unchanged - ";
+        if (arrSeq && arrSeq->GetLength() == 3 && arrSeq->Get(0) == 1 && arrSeq->Get(1) == 2 && arrSeq->Get(2) == 3) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Null function exception
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2);
+        std::cout << "Test 5: Null function exception - ";
+        tree.map<int>(std::function<int(const int&)>(nullptr));
+        std::cout << "Failed\n";
+    }
+    catch (const std::invalid_argument& e) {
+        std::cout << "Passed\n";
+    }
+    catch (const std::exception& e) {
+        std::cout << "Failed with unexpected exception: " << e.what() << "\n";
+    }
+}
+void testBinaryTreeWhere() {
+    std::cout << "=== Binary Tree Where Testing ===\n";
+
+    // Test 1: Filter even numbers
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2)->add(3)->add(4)->add(5);
+        BinaryTree<int>* result = tree.where([](const int& x) { return x % 2 == 0; });
+        Sequence<int>* lnr = result->LNR();
+        ArraySequence<int>* arrSeq = dynamic_cast<ArraySequence<int>*>(lnr);
+        std::cout << "Test 1: Filter even numbers - ";
+        if (arrSeq && arrSeq->GetLength() == 2 && arrSeq->Get(0) == 2 && arrSeq->Get(1) == 4) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 1: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 2: Filter numbers greater than 3
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2)->add(3)->add(4)->add(5);
+        BinaryTree<int>* result = tree.where([](const int& x) { return x > 3; });
+        Sequence<int>* lnr = result->LNR();
+        ArraySequence<int>* arrSeq = dynamic_cast<ArraySequence<int>*>(lnr);
+        std::cout << "Test 2: Filter numbers > 3 - ";
+        if (arrSeq && arrSeq->GetLength() == 2 && arrSeq->Get(0) == 4 && arrSeq->Get(1) == 5) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 2: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 3: Empty tree filtering
+    try {
+        BinaryTree<int> tree;
+        BinaryTree<int>* result = tree.where([](const int& x) { return x > 0; });
+        Sequence<int>* lnr = result->LNR();
+        std::cout << "Test 3: Empty tree filtering - ";
+        if (lnr && lnr->GetLength() == 0) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 4: No matches in filtering
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2)->add(3);
+        BinaryTree<int>* result = tree.where([](const int& x) { return x > 10; });
+        Sequence<int>* lnr = result->LNR();
+        std::cout << "Test 4: No matches in filtering - ";
+        if (lnr && lnr->GetLength() == 0) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete lnr;
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Null predicate exception
+    try {
+        BinaryTree<int> tree;
+        tree.add(1)->add(2);
+        std::cout << "Test 5: Null predicate exception - ";
+        tree.where(std::function<bool(const int&)>(nullptr));
+        std::cout << "Failed\n";
+    }
+    catch (const std::invalid_argument& e) {
+        std::cout << "Passed\n";
+    }
+    catch (const std::exception& e) {
+        std::cout << "Failed with unexpected exception: " << e.what() << "\n";
+    }
+}
+void testBinaryTreeContainsSubtree() {
+    std::cout << "=== Binary Tree ContainsSubtree Testing ===\n";
+
+    // Test 1: Existing subtree
+    try {
+        BinaryTree<int> tree;
+        tree.add(10)->add(5)->add(15)->add(3)->add(7);
+        BinaryTree<int> subtree;
+        subtree.add(5)->add(3)->add(7);
+        std::cout << "Test 1: Existing subtree - ";
+        if (tree.containsSubtree(subtree)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 1: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 2: Non-existing subtree
+    try {
+        BinaryTree<int> tree;
+        tree.add(10)->add(5)->add(15);
+        BinaryTree<int> subtree;
+        subtree.add(5)->add(4)->add(6);
+        std::cout << "Test 2: Non-existing subtree - ";
+        if (!tree.containsSubtree(subtree)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 2: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 3: Empty subtree
+    try {
+        BinaryTree<int> tree;
+        tree.add(10)->add(5);
+        BinaryTree<int> subtree;
+        std::cout << "Test 3: Empty subtree - ";
+        if (tree.containsSubtree(subtree)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 4: Single-node subtree
+    try {
+        BinaryTree<int> tree;
+        tree.add(10)->add(5)->add(15);
+        BinaryTree<int> subtree;
+        subtree.add(10);
+        std::cout << "Test 4: Single-node subtree - ";
+        if (tree.containsSubtree(subtree)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Complex subtree with multiple nodes
+    try {
+        BinaryTree<int> tree;
+        tree.add(10)->add(5)->add(15)->add(3)->add(7)->add(12)->add(20);
+        BinaryTree<int> subtree;
+        subtree.add(15)->add(12)->add(20);
+        std::cout << "Test 5: Complex subtree - ";
+        if (tree.containsSubtree(subtree)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 5: Failed with exception: " << e.what() << "\n";
+    }
+}
+void testBinaryTreeCompareSubtrees() {
+    std::cout << "=== Binary Tree CompareSubtrees Testing ===\n";
+
+    // Test 1: Identical subtrees
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10)->add(5)->add(15);
+        BinaryTree<int> tree2;
+        tree2.add(10)->add(5)->add(15);
+        std::cout << "Test 1: Identical subtrees - ";
+        if (tree1.compareSubtrees(tree1.getRoot(), tree2.getRoot())) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 1: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 2: Non-identical subtrees
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10)->add(5)->add(15);
+        BinaryTree<int> tree2;
+        tree2.add(10)->add(6)->add(15);
+        std::cout << "Test 2: Non-identical subtrees - ";
+        if (!tree1.compareSubtrees(tree1.getRoot(), tree2.getRoot())) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 2: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 3: One null subtree
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10);
+        BinaryTree<int> tree2;
+        std::cout << "Test 3: One null subtree - ";
+        if (!tree1.compareSubtrees(tree1.getRoot(), nullptr)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 4: Both null subtrees
+    try {
+        BinaryTree<int> tree1;
+        BinaryTree<int> tree2;
+        std::cout << "Test 4: Both null subtrees - ";
+        if (tree1.compareSubtrees(nullptr, nullptr)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Same values, different structure
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10)->add(5)->add(15)->add(12);  
+        BinaryTree<int> tree3;
+        tree3.add(15)->add(12)->add(10)->add(5);
+
+        std::cout << "Test 5: Same values, different structure - ";
+        if (!tree1.compareSubtrees(tree1.getRoot(), tree3.getRoot())) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (...) {
+        std::cout << "Test 5: Failed with exception\n";
+    }
+}
+
+void testBinaryTree() {
+    std::cout << "=== Testing BinaryTree ===\n";  
     // Test 1: Default constructor
     try {
         BinaryTree<int> tree;
@@ -621,6 +1003,11 @@ void testBinaryTree() {
     catch (const std::exception& e) {
         std::cout << "Test 15: Failed with exception: " << e.what() << "\n";
     }
+    
     testBinaryTreeRemove();
     testBinaryTreeReduce();
+    testBinaryTreeMap();
+    testBinaryTreeWhere();
+    testBinaryTreeCompareSubtrees();
+    testBinaryTreeContainsSubtree();
 }

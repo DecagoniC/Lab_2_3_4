@@ -31,13 +31,13 @@ protected:
         stack.Push(root);
         int count = 0;
 
-        while (!stack.empty()) {
+        while (!stack.IsEmpty()) {
             const Node* node = stack.Top();
             stack.Pop();
             count++;
 
-            if (node->left) stack.push(node->left);
-            if (node->right) stack.push(node->right);
+            if (node->left) stack.Push(node->left);
+            if (node->right) stack.Push(node->right);
         }
         return count;
     }
@@ -56,7 +56,7 @@ protected:
         return leftHeight - rightHeight;
     }
 
-    Node* copyTree(const Node* sourceRoot) {
+    Node* copyTree(const Node* sourceRoot) const {
         if (!sourceRoot) return nullptr;
 
         Stack<const Node*> sourceStack;
@@ -92,28 +92,6 @@ protected:
         }
 
         return newRoot;
-    }
-    Node* findNode(const T& item) const {
-        if (!root) return nullptr;
-
-        Stack<Node*> stack;
-        Node* current = root;
-
-        while (!stack.IsEmpty() || current) {
-            while (current) {
-                stack.Push(current);
-                current = current->left;
-            }
-            current = stack.Top();
-            stack.Pop();
-
-            if (current->value == item) {
-                return current;
-            }
-
-            current = current->right;
-        }
-        return nullptr;
     }
 
 public:
@@ -164,6 +142,28 @@ public:
         delete root;
     }
 
+    Node* findNode(const T& item) const {
+        if (!root) return nullptr;
+
+        Stack<Node*> stack;
+        Node* current = root;
+
+        while (!stack.IsEmpty() || current) {
+            while (current) {
+                stack.Push(current);
+                current = current->left;
+            }
+            current = stack.Top();
+            stack.Pop();
+
+            if (current->value == item) {
+                return current;
+            }
+
+            current = current->right;
+        }
+        return nullptr;
+    }
     Node* LeftRotate(Node* x) {
         if (!x) {
             throw std::invalid_argument("Нельзя выполнить поворот: узел не существует");
@@ -633,21 +633,18 @@ public:
             throw std::invalid_argument("Null function pointer passed to map");
         }
         BinaryTree<U>* result = new BinaryTree<U>();
-        if (!result) {
-            throw std::runtime_error("Memory allocation failed for new tree");
+        if (!root) return result;
+
+        Sequence<T>* source = this->LNR();
+        ArraySequence<T>* arrSeq = dynamic_cast<ArraySequence<T>*>(source);
+
+        if (arrSeq) {
+            for (int i = 0; i < arrSeq->GetLength(); ++i) {
+                result->add(func(arrSeq->Get(i)));
+            }
         }
-        // Use LNR traversal to get elements in order
-        Sequence<T>* seq = LNR();
-        if (!seq) {
-            delete result;
-            throw std::runtime_error("Failed to get traversal sequence");
-        }
-        // Apply func to each element and insert into new tree
-        for (int i = 0; i < seq->GetLength(); ++i) {
-            U newValue = func((*dynamic_cast<ArraySequence<T>*>(seq))[i]);
-            result->add(newValue);
-        }
-        delete seq;
+
+        delete source;
         return result;
     }
     BinaryTree<T>* where(std::function<bool(const T&)> predicate) const {
@@ -683,46 +680,62 @@ public:
     }
     bool containsSubtree(const BinaryTree<T>& subtree) const {
         if (subtree.isEmpty()) return true;
+        const Node* subRoot = subtree.getRoot();
+        if (!subRoot) return true;
+        if (!root) return false;
 
-        Stack<Node*> stack;
-        if (root) stack.Push(root);
+        Stack<const Node*> stack;
+        stack.Push(root);
 
         while (!stack.IsEmpty()) {
-            Node* current = stack.Top();
+            const Node* current = stack.Top();
             stack.Pop();
 
-            
-            Node* subtreeCopy = copyTree(current);
-            BinaryTree<T> tempTree(subtreeCopy);
-
-            if (tempTree == subtree) {
-                delete subtreeCopy;
-                return true;
+            if (current->value == subRoot->value) {
+                // Проверяем полное совпадение структуры
+                if (compareSubtrees(current, subRoot)) {
+                    return true;
+                }
             }
 
+            // Продолжаем поиск в дереве
             if (current->right) stack.Push(current->right);
             if (current->left) stack.Push(current->left);
-
-            delete subtreeCopy;
         }
         return false;
     }
     bool compareSubtrees(const Node* a, const Node* b) const {
-        if (!b) return true;
-        if (!a) return false;
+        Stack<const Node*> stackA;
+        Stack<const Node*> stackB;
 
-        Node* aCopy = copyTree(a);
-        Node* bCopy = copyTree(b);
+        stackA.Push(a);
+        stackB.Push(b);
 
-        BinaryTree<T> tempA(aCopy);
-        BinaryTree<T> tempB(bCopy);
+        while (!stackA.IsEmpty() && !stackB.IsEmpty()) {
+            const Node* nodeA = stackA.Top();
+            const Node* nodeB = stackB.Top();
+            stackA.Pop();
+            stackB.Pop();
 
-        bool result = (tempA == tempB);
+            // Если оба nullptr - пропускаем
+            if (!nodeA && !nodeB) continue;
 
-        delete aCopy;
-        delete bCopy;
+            // Если один nullptr, а другой нет - структура разная
+            if (!nodeA || !nodeB) return false;
 
-        return result;
+            // Значения должны совпадать
+            if (nodeA->value != nodeB->value) return false;
+
+            // Пушим детей в одинаковом порядке
+            stackA.Push(nodeA->right);
+            stackA.Push(nodeA->left);
+
+            stackB.Push(nodeB->right);
+            stackB.Push(nodeB->left);
+        }
+
+        // Если один стек пуст, а другой нет - структура разная
+        return stackA.IsEmpty() && stackB.IsEmpty();
     }
     bool contains(T item) const {
         Node* current = root;
@@ -771,7 +784,7 @@ public:
         delete seq;
         return result;
     }
-    Node* getRoot() {
+    Node* getRoot() const {
         return root;
     }
 

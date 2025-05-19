@@ -57,6 +57,10 @@ public:
         return capacity;
     }
     void To_String() const {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
         if (length != 0) std::cout << "[";
         else std::cout << "[]\n";
         for (int i = 0; i < GetLength(); i++) {

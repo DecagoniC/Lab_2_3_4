@@ -330,6 +330,10 @@ public:
         return result;
     }
     void To_String() const override {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
         std::cout << "[";
         int totalLength = GetLength();
         int currentIndex = 0;
@@ -346,6 +350,10 @@ public:
         std::cout << "]" << std::endl;
     }
     void To_SegString() {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
         std::cout << "[";
         for (int i = 0; i < data.GetLength(); ++i) {
             data[i].value.To_String_S();
