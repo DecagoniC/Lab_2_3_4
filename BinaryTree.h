@@ -93,6 +93,28 @@ protected:
 
         return newRoot;
     }
+    Node* findNode(const T& item) const {
+        if (!root) return nullptr;
+
+        Stack<Node*> stack;
+        Node* current = root;
+
+        while (!stack.IsEmpty() || current) {
+            while (current) {
+                stack.Push(current);
+                current = current->left;
+            }
+            current = stack.Top();
+            stack.Pop();
+
+            if (current->value == item) {
+                return current;
+            }
+
+            current = current->right;
+        }
+        return nullptr;
+    }
 
 public:
     BinaryTree() : root(nullptr), height(0), nodeCount(0) {}
@@ -174,7 +196,6 @@ public:
         updateHeight(y);
         return y;
     }
-
     Node* RightRotate(Node* y) {
         if (!y) {
             throw std::invalid_argument("Нельзя выполнить поворот: узел не существует");
@@ -207,7 +228,6 @@ public:
         updateHeight(x);
         return x;
     }
-
     BinaryTree* add(T item) {
         Node* newNode = new Node(item);
         if (!root) {
@@ -267,7 +287,6 @@ public:
 
         return this;
     }
-
     Sequence<T>* LNR() const {
         ArraySequence<T>* result = new ArraySequence<T>;
         if (!result) {
@@ -293,7 +312,6 @@ public:
 
         return result;
     }
-
     Sequence<T>* RNL() const {
         ArraySequence<T>* result = new ArraySequence<T>;
         if (!result) {
@@ -317,7 +335,6 @@ public:
 
         return result;
     }
-
     Sequence<T>* NLR() const {
         ArraySequence<T>* result = new ArraySequence<T>;
         if (!result) {
@@ -341,7 +358,6 @@ public:
 
         return result;
     }
-
     Sequence<T>* NRL() const {
         ArraySequence<T>* result = new ArraySequence<T>;
         if (!result) {
@@ -367,7 +383,6 @@ public:
 
         return result;
     }
-
     Sequence<T>* RLN() const {
         ArraySequence<T>* result = new ArraySequence<T>();
         if (!result) {
@@ -400,7 +415,6 @@ public:
 
         return result;
     }
-
     Sequence<T>* LRN() const {
         ArraySequence<T>* result = new ArraySequence<T>();
         if (!result) {
@@ -636,7 +650,6 @@ public:
         delete seq;
         return result;
     }
-
     BinaryTree<T>* where(std::function<bool(const T&)> predicate) const {
         if (!predicate) {
             throw std::invalid_argument("Null predicate pointer passed to where");
@@ -661,7 +674,56 @@ public:
         delete seq;
         return result;
     }
+    BinaryTree<T>* extractSubtree(const T& item) const {
+        Node* subtreeRoot = findNode(item); 
+        if (!subtreeRoot) return nullptr;
 
+        Node* copiedSubtree = copyTree(subtreeRoot);
+        return new BinaryTree<T>(copiedSubtree);
+    }
+    bool containsSubtree(const BinaryTree<T>& subtree) const {
+        if (subtree.isEmpty()) return true;
+
+        Stack<Node*> stack;
+        if (root) stack.Push(root);
+
+        while (!stack.IsEmpty()) {
+            Node* current = stack.Top();
+            stack.Pop();
+
+            
+            Node* subtreeCopy = copyTree(current);
+            BinaryTree<T> tempTree(subtreeCopy);
+
+            if (tempTree == subtree) {
+                delete subtreeCopy;
+                return true;
+            }
+
+            if (current->right) stack.Push(current->right);
+            if (current->left) stack.Push(current->left);
+
+            delete subtreeCopy;
+        }
+        return false;
+    }
+    bool compareSubtrees(const Node* a, const Node* b) const {
+        if (!b) return true;
+        if (!a) return false;
+
+        Node* aCopy = copyTree(a);
+        Node* bCopy = copyTree(b);
+
+        BinaryTree<T> tempA(aCopy);
+        BinaryTree<T> tempB(bCopy);
+
+        bool result = (tempA == tempB);
+
+        delete aCopy;
+        delete bCopy;
+
+        return result;
+    }
     bool contains(T item) const {
         Node* current = root;
         while (current) {
@@ -681,7 +743,34 @@ public:
     int getHeight() const {
         return root ? root->height : 0;
     }
+    T Reduce(std::function<T(const T&, const T&)> func, const T& initial) const {
+        if (!func) {
+            throw std::invalid_argument("Null function pointer passed to reduce");
+        }
 
+        if (!root) {
+            return initial;
+        }
+
+        Sequence<T>* seq = LNR();
+        if (!seq) {
+            throw std::runtime_error("Failed to get traversal sequence");
+        }
+
+        T result = initial;
+        ArraySequence<T>* arrSeq = dynamic_cast<ArraySequence<T>*>(seq);
+        if (!arrSeq) {
+            delete seq;
+            throw std::runtime_error("Failed to cast Sequence to ArraySequence");
+        }
+
+        for (int i = 0; i < arrSeq->GetLength(); ++i) {
+            result = func(result, (*arrSeq)[i]);
+        }
+
+        delete seq;
+        return result;
+    }
     Node* getRoot() {
         return root;
     }
@@ -709,5 +798,27 @@ public:
         std::cout << "Структура дерева:\n";
         if (!root) std::cout << "Дерево пусто\n";
         else printTree(root);
+    }
+    bool operator==(const BinaryTree<T>& other) const {
+        Stack<const Node*> stack1, stack2;
+        const Node* curr1 = root;
+        const Node* curr2 = other.root;
+
+        while ((!stack1.IsEmpty() || curr1) && (!stack2.IsEmpty() || curr2)) {
+            while (curr1 && curr2) {
+                if (curr1->value != curr2->value) return false;
+                stack1.Push(curr1);
+                stack2.Push(curr2);
+                curr1 = curr1->left;
+                curr2 = curr2->left;
+            }
+            if (curr1 || curr2) return false; // Разная структура
+
+            curr1 = stack1.Top()->right;
+            curr2 = stack2.Top()->right;
+            stack1.Pop();
+            stack2.Pop();
+        }
+        return true;
     }
 };
