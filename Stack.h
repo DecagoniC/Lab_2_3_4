@@ -1,29 +1,64 @@
 #pragma once
 #include "ListSequence.h"
+
 template <typename T>
-class Stack: protected ListSequence<T> {
+class Stack : private ListSequence<T> {
 public:
-	Stack() : ListSequence() {}
-	Stack(int count) : ListSequence(count) {}
-	Stack(T* items, int count) : ListSequence(items,count)) {}
-	Stack(const Stack<T>& other) : ListSequence(other) {}
-	Stack(const LinkedList<T>& list) : ListSequence(list) {}
-	~Stack() = default;
-	bool Is_empty() {
-		return (!this->list.GetLength());
-	}
-	T Top() {
-		return this->GetFirst();
-	}
-	void Pop() {
-		ListSequence<T>::PopFront();
-	}
-	Sequence<T>* Add(T item){
-		ListSequence<T>::Append(item);
-		return this;
-	}
-	void To_String() {
-		ListSequence<T>::To_String();
-		return;
-	}
+    Stack() : ListSequence<T>() {}
+    Stack(T* items, int count) : ListSequence<T>(items, count) {}
+    Stack(const Stack<T>& other) : ListSequence<T>(other) {}
+    Stack(const ListSequence<T>& list) : ListSequence<T>(list) {}
+
+    void Push(const T& item) {
+        this->Append(item);
+    }
+
+    // Измененный метод Pop - теперь void
+    void Pop() {
+        if (this->IsEmpty()) throw std::out_of_range("Stack is empty");
+        this->RemoveAt(this->GetLength() - 1);
+    }
+
+    T Top() const {
+        if (this->IsEmpty()) throw std::out_of_range("Stack is empty");
+        return this->GetLast();
+    }
+
+    bool IsEmpty() const {
+        return this->GetLength() == 0;
+    }
+
+    Stack<T>* Where(bool (*predicate)(T)) const {
+        Sequence<T>* filtered = ListSequence<T>::Where(predicate);
+        Stack<T>* result = new Stack<T>(*dynamic_cast<ListSequence<T>*>(filtered));
+        delete filtered;
+        return result;
+    }
+
+    template <typename U>
+    Stack<U>* Map(U(*func)(T)) const {
+        Sequence<U>* mapped = ListSequence<T>::Map(func);
+        Stack<U>* result = new Stack<U>(*dynamic_cast<ListSequence<U>*>(mapped));
+        delete mapped;
+        return result;
+    }
+
+    T Reduce(T(*func)(T, T), T start) const {
+        return ListSequence<T>::Reduce(func, start);
+    }
+
+    Stack<T>* Concat(const Stack<T>& other) const {
+        Sequence<T>* concatenated = ListSequence<T>::Concat(&other);
+        Stack<T>* result = new Stack<T>(*dynamic_cast<ListSequence<T>*>(concatenated));
+        delete concatenated;
+        return result;
+    }
+
+    using ListSequence<T>::Get;
+    using ListSequence<T>::GetLength;
+    using ListSequence<T>::To_String;
+
+    void Print() const {
+        this->To_String();
+    }
 };

@@ -14,6 +14,17 @@ public:
     ListSequence(const LinkedList<T>& list) : list(list) {}
     ~ListSequence() = default;
 
+    void RemoveAt(int index) {
+        if (index < 0 || index >= list.GetLength()) {
+            throw std::out_of_range("Index out of range");
+        }
+        list.RemoveAt(index);
+    }
+
+
+
+
+
     T GetFirst() const override {
         return list.GetFirst();
     }

@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <iostream>
 
+
+
 template <typename T>
 class LinkedList {
 protected:
@@ -27,7 +29,7 @@ public:
             Append(T());
         }
     }
-    LinkedList(const LinkedList<T>& other) : head(nullptr),tail(nullptr), length(0) {
+    LinkedList(const LinkedList<T>& other) : head(nullptr), tail(nullptr), length(0) {
         Node* current = other.head;
         while (current) {
             Append(current->value);
@@ -41,6 +43,36 @@ public:
             delete temp;
         }
     }
+
+    void RemoveAt(int index) {
+        if (index < 0 || index >= length) {
+            throw std::out_of_range("Index out of range");
+        }
+
+        if (index == 0) {
+            PopFront();
+            return;
+        }
+
+        Node* prev = head;
+        for (int i = 0; i < index - 1; ++i) {
+            prev = prev->next;
+        }
+
+        Node* toDelete = prev->next;
+        prev->next = toDelete->next;
+
+        if (toDelete == tail) {
+            tail = prev;
+        }
+
+        delete toDelete;
+        length--;
+    }
+
+
+
+
     T GetFirst() const {
         if (!head) {
             throw std::out_of_range("List is empty");
@@ -75,7 +107,12 @@ public:
     int GetLength() const {
         return length;
     }
-    void To_String()const {
+    void To_String() const {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
+
         if (length != 0) std::cout << "[";
         else std::cout << "[]\n";
         for (int i = 0; i < GetLength(); i++) {
@@ -97,9 +134,9 @@ public:
         }
         return subList;
     }
-    void Set(T item,int ind) {
+    void Set(T item, int ind) {
         Node* current = head;
-        for (int i = 0; i < ind; i++){
+        for (int i = 0; i < ind; i++) {
             current = current->next;
         }
         current->value = item;
@@ -140,7 +177,7 @@ public:
         }
     }
     LinkedList<T>* Concat(const LinkedList<T>& list) const {
-        LinkedList<T>* result=new LinkedList<T>(*this);
+        LinkedList<T>* result = new LinkedList<T>(*this);
         for (int i = 0; i < list.GetLength(); i++) {
             result->Append(list.Get(i));
         }
@@ -156,7 +193,7 @@ public:
         }
         return current->value;
     }
-    const T& operator[](int index) const{
+    const T& operator[](int index) const {
         if (index < 0 || index >= length) {
             throw std::out_of_range("Index out of bounds");
         }
