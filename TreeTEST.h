@@ -526,6 +526,97 @@ void testBinaryTreeWhere() {
         std::cout << "Failed with unexpected exception: " << e.what() << "\n";
     }
 }
+void testBinaryTreeCompareSubtrees() {
+    std::cout << "=== Binary Tree CompareSubtrees Testing ===\n";
+
+    // Test 1: Identical subtrees
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10)->add(5)->add(15);
+        BinaryTree<int> tree2;
+        tree2.add(10)->add(5)->add(15);
+        std::cout << "Test 1: Identical subtrees - ";
+        if (tree1.compareSubtrees(tree1.getRoot(), tree2.getRoot())) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 1: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 2: Non-identical subtrees
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10)->add(5)->add(15);
+        BinaryTree<int> tree2;
+        tree2.add(10)->add(6)->add(15);
+        std::cout << "Test 2: Non-identical subtrees - ";
+        if (!tree1.compareSubtrees(tree1.getRoot(), tree2.getRoot())) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 2: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 3: One null subtree
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10);
+        BinaryTree<int> tree2;
+        std::cout << "Test 3: One null subtree - ";
+        if (!tree1.compareSubtrees(tree1.getRoot(), nullptr)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 4: Both null subtrees
+    try {
+        BinaryTree<int> tree1;
+        BinaryTree<int> tree2;
+        std::cout << "Test 4: Both null subtrees - ";
+        if (tree1.compareSubtrees(nullptr, nullptr)) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Same values, different structure
+    try {
+        BinaryTree<int> tree1;
+        tree1.add(10)->add(5)->add(15)->add(12);
+        BinaryTree<int> tree3;
+        tree3.add(15)->add(12)->add(10)->add(5);
+
+        std::cout << "Test 5: Same values, different structure - ";
+        if (!tree1.compareSubtrees(tree1.getRoot(), tree3.getRoot())) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (...) {
+        std::cout << "Test 5: Failed with exception\n";
+    }
+}
 void testBinaryTreeContainsSubtree() {
     std::cout << "=== Binary Tree ContainsSubtree Testing ===\n";
 
@@ -618,97 +709,7 @@ void testBinaryTreeContainsSubtree() {
         std::cout << "Test 5: Failed with exception: " << e.what() << "\n";
     }
 }
-void testBinaryTreeCompareSubtrees() {
-    std::cout << "=== Binary Tree CompareSubtrees Testing ===\n";
 
-    // Test 1: Identical subtrees
-    try {
-        BinaryTree<int> tree1;
-        tree1.add(10)->add(5)->add(15);
-        BinaryTree<int> tree2;
-        tree2.add(10)->add(5)->add(15);
-        std::cout << "Test 1: Identical subtrees - ";
-        if (tree1.compareSubtrees(tree1.getRoot(), tree2.getRoot())) {
-            std::cout << "Passed\n";
-        }
-        else {
-            std::cout << "Failed\n";
-        }
-    }
-    catch (const std::exception& e) {
-        std::cout << "Test 1: Failed with exception: " << e.what() << "\n";
-    }
-
-    // Test 2: Non-identical subtrees
-    try {
-        BinaryTree<int> tree1;
-        tree1.add(10)->add(5)->add(15);
-        BinaryTree<int> tree2;
-        tree2.add(10)->add(6)->add(15);
-        std::cout << "Test 2: Non-identical subtrees - ";
-        if (!tree1.compareSubtrees(tree1.getRoot(), tree2.getRoot())) {
-            std::cout << "Passed\n";
-        }
-        else {
-            std::cout << "Failed\n";
-        }
-    }
-    catch (const std::exception& e) {
-        std::cout << "Test 2: Failed with exception: " << e.what() << "\n";
-    }
-
-    // Test 3: One null subtree
-    try {
-        BinaryTree<int> tree1;
-        tree1.add(10);
-        BinaryTree<int> tree2;
-        std::cout << "Test 3: One null subtree - ";
-        if (!tree1.compareSubtrees(tree1.getRoot(), nullptr)) {
-            std::cout << "Passed\n";
-        }
-        else {
-            std::cout << "Failed\n";
-        }
-    }
-    catch (const std::exception& e) {
-        std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
-    }
-
-    // Test 4: Both null subtrees
-    try {
-        BinaryTree<int> tree1;
-        BinaryTree<int> tree2;
-        std::cout << "Test 4: Both null subtrees - ";
-        if (tree1.compareSubtrees(nullptr, nullptr)) {
-            std::cout << "Passed\n";
-        }
-        else {
-            std::cout << "Failed\n";
-        }
-    }
-    catch (const std::exception& e) {
-        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
-    }
-
-    // Test 5: Same values, different structure
-    try {
-        BinaryTree<int> tree1;
-        tree1.add(10)->add(5)->add(15)->add(12);  
-        BinaryTree<int> tree3;
-        tree3.add(15)->add(12)->add(10)->add(5);
-
-        std::cout << "Test 5: Same values, different structure - ";
-        if (!tree1.compareSubtrees(tree1.getRoot(), tree3.getRoot())) {
-            std::cout << "Passed\n";
-        }
-        else {
-            std::cout << "Failed\n";
-        }
-    }
-    catch (...) {
-        std::cout << "Test 5: Failed with exception\n";
-    }
-}
 
 void testBinaryTree() {
     std::cout << "=== Testing BinaryTree ===\n";  

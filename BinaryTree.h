@@ -41,21 +41,18 @@ protected:
         }
         return count;
     }
-
     void updateHeight(Node* node) {
         if (!node) return;
         int leftHeight = node->left ? node->left->height : -1;
         int rightHeight = node->right ? node->right->height : -1;
         node->height = std::max(leftHeight, rightHeight) + 1;
     }
-
     int getBalanceFactor(Node* node) {
         if (!node) return 0;
         int leftHeight = (node->left) ? node->left->height : -1;
         int rightHeight = (node->right) ? node->right->height : -1;
         return leftHeight - rightHeight;
     }
-
     Node* copyTree(const Node* sourceRoot) const {
         if (!sourceRoot) return nullptr;
 
@@ -690,21 +687,18 @@ public:
         while (!stack.IsEmpty()) {
             const Node* current = stack.Top();
             stack.Pop();
-
             if (current->value == subRoot->value) {
-                // ѕровер€ем полное совпадение структуры
                 if (compareSubtrees(current, subRoot)) {
                     return true;
                 }
             }
 
-            // ѕродолжаем поиск в дереве
             if (current->right) stack.Push(current->right);
             if (current->left) stack.Push(current->left);
         }
         return false;
     }
-    bool compareSubtrees(const Node* a, const Node* b) const {
+    bool compareSubtrees(const Node* a, const Node* b) const { //  ак правило, нода b это корень поддерева, вхождение которого провер€етс€
         Stack<const Node*> stackA;
         Stack<const Node*> stackB;
 
@@ -725,7 +719,8 @@ public:
 
             // «начени€ должны совпадать
             if (nodeA->value != nodeB->value) return false;
-
+            // ≈сли во врем€ обхода искомого поддерева находитс€ узел без детей, то дальше провер€ть через этот узел не надо
+            if (!(nodeB->left || nodeB->right)) continue;
             // ѕушим детей в одинаковом пор€дке
             stackA.Push(nodeA->right);
             stackA.Push(nodeA->left);
@@ -734,7 +729,8 @@ public:
             stackB.Push(nodeB->left);
         }
 
-        // ≈сли один стек пуст, а другой нет - структура разна€
+        // ѕосле прекращене€ работы while очевидно, что какой-то из стеков опустел. ≈сли какой-то опустел раньше - структуры разные, если же оба одновременно
+        // то одинаковые
         return stackA.IsEmpty() && stackB.IsEmpty();
     }
     bool contains(T item) const {
