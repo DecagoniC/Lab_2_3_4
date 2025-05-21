@@ -68,7 +68,7 @@ public:
     int GetCapacity() const {
         return capacity;
     }
-    void To_String() const override {
+    void To_String() const {
         static_assert(
             std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
             "T must be printable with std::ostream"

@@ -7,6 +7,7 @@
 template <typename T>
 class LinkedList {
 protected:
+    
     struct Node {
         T value;
         Node* next;
@@ -107,11 +108,7 @@ public:
     int GetLength() const {
         return length;
     }
-    void To_String() const {
-        static_assert(
-            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
-            "T must be printable with std::ostream"
-            );
+    void To_String() const {  // C++20 concept
         if (length != 0) std::cout << "[";
         else std::cout << "[]\n";
         for (int i = 0; i < GetLength(); i++) {

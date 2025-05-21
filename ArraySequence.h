@@ -30,7 +30,7 @@ public:
     int GetLength() const override {
         return array.GetLength();
     }
-    void To_String()const override {
+    void To_String()const {
         array.To_String();
     }
     Sequence<T>* GetSubsequence(int start, int end) const override {

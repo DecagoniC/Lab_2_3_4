@@ -5,7 +5,6 @@ template <typename T>
 using Func_T_bool = bool(*)(T);
 template <typename T>
 using Func_T_T = T(*)(T, T);
-
 template <typename T>
 class Sequence {
 public:
@@ -13,7 +12,6 @@ public:
     virtual T GetLast() const = 0;
     virtual T Get(int index) const = 0;
     virtual int GetLength() const = 0;
-    virtual void To_String()const = 0;
 
     virtual Sequence<T>* Set(T value, int index) = 0;
     virtual Sequence<T>* Append(T item) = 0;

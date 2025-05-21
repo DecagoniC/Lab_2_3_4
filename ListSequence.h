@@ -1,6 +1,11 @@
 #pragma once
 #include "LinkedList.h"
 #include "Sequence.h"
+
+template <typename T>
+concept Printable = requires(std::ostream & os, T val) {
+    { os << val } -> std::same_as<std::ostream&>;
+};
 template <typename T>
 class ListSequence : public Sequence<T> {
 protected:
@@ -37,7 +42,7 @@ public:
     int GetLength() const override {
         return list.GetLength();
     }
-    void To_String()const override {
+    void To_String()const requires(Printable<T>) {
         list.To_String();
     }
     Sequence<T>* PopFront() {

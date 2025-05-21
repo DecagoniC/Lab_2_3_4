@@ -56,36 +56,31 @@ protected:
     Node* copyTree(const Node* sourceRoot) const {
         if (!sourceRoot) return nullptr;
 
-        Stack<const Node*> sourceStack;
-        Stack<Node**> destStack;
+        struct StackItem {
+            const Node* srcNode;
+            Node** dstPtr;
+            Node* parent;
+        };
+
+        Stack<StackItem> stack;
         Node* newRoot = nullptr;
 
-        sourceStack.Push(sourceRoot);
-        destStack.Push(&newRoot);
+        stack.Push({ sourceRoot, &newRoot, nullptr });
 
-        while (!sourceStack.IsEmpty()) {
-            const Node* srcNode = sourceStack.Top();
-            Node** dstPtr = destStack.Top();
-            sourceStack.Pop();
-            destStack.Pop();
+        while (!stack.IsEmpty()) {
+            auto [srcNode, dstPtr, parent] = stack.Top();
+            stack.Pop();
 
             if (!srcNode) continue;
 
-            // Создаём копию узла
-            *dstPtr = new Node(srcNode->value, nullptr);
+            // Создаем копию узла с правильным родителем
+            *dstPtr = new Node(srcNode->value, parent);
             (*dstPtr)->height = srcNode->height;
 
-            // Обрабатываем правого потомка (кладём в стек первым)
-            sourceStack.Push(srcNode->right);
-            destStack.Push(&((*dstPtr)->right));
-
-            // Обрабатываем левого потомка
-            sourceStack.Push(srcNode->left);
-            destStack.Push(&((*dstPtr)->left));
-
-            // Устанавливаем родителя для потомков
-            if ((*dstPtr)->left) (*dstPtr)->left->parent = *dstPtr;
-            if ((*dstPtr)->right) (*dstPtr)->right->parent = *dstPtr;
+            // Сначала правый потомок (обработается позже)
+            stack.Push({ srcNode->right, &((*dstPtr)->right), *dstPtr });
+            // Затем левый потомок (обработается следующим)
+            stack.Push({ srcNode->left, &((*dstPtr)->left), *dstPtr });
         }
 
         return newRoot;
@@ -109,6 +104,11 @@ public:
 
         root = copyTree(other.root);
     }
+    BinaryTree(const BinaryTree<T>* other) : root(nullptr), height(other->height), nodeCount(other->nodeCount) {
+        if (!other->root) return;
+
+        root = copyTree(other->root);
+    }
     BinaryTree(const Node* node) : root(nullptr), height(0), nodeCount(0) {
         if (!node) return;
 
@@ -116,7 +116,7 @@ public:
         height = node->height;
         nodeCount = countNodes(node);
     }
-
+    
     
     
 
@@ -719,7 +719,7 @@ public:
 
             // Значения должны совпадать
             if (nodeA->value != nodeB->value) return false;
-            // Если во время обхода искомого поддерева находится узел без детей, то дальше проверять через этот узел не надо
+            // Если во время обхода искомого поддерева находится узел без детей (лист) , то дальше проверять через этот узел не надо
             if (!(nodeB->left || nodeB->right)) continue;
             // Пушим детей в одинаковом порядке
             stackA.Push(nodeA->right);
@@ -783,15 +783,12 @@ public:
     Node* getRoot() const {
         return root;
     }
-
     int getNodeCount() const {
         return nodeCount;
     }
-
     bool isEmpty() const {
         return root == nullptr;
     }
-
     void printTree(Node* node, int depth = 0) const {
         if (!node) return;
         for (int i = 0; i < depth; ++i) std::cout << "  ";
@@ -802,32 +799,53 @@ public:
         printTree(node->left, depth + 1);
         printTree(node->right, depth + 1);
     }
-
     void printTree() const {
         std::cout << "Структура дерева:\n";
         if (!root) std::cout << "Дерево пусто\n";
         else printTree(root);
     }
     bool operator==(const BinaryTree<T>& other) const {
+        // Создаем стеки для итеративного LNR-обхода
         Stack<const Node*> stack1, stack2;
         const Node* curr1 = root;
         const Node* curr2 = other.root;
 
-        while ((!stack1.IsEmpty() || curr1) && (!stack2.IsEmpty() || curr2)) {
-            while (curr1 && curr2) {
-                if (curr1->value != curr2->value) return false;
-                stack1.Push(curr1);
-                stack2.Push(curr2);
-                curr1 = curr1->left;
-                curr2 = curr2->left;
+        while (!stack1.IsEmpty() || curr1 || !stack2.IsEmpty() || curr2) {
+            // Продвигаемся до самого левого узла для обоих деревьев
+            while (curr1 || curr2) {
+                // Если одно дерево имеет узел, а другое нет, они не равны
+                if ((curr1 && !curr2) || (!curr1 && curr2)) {
+                    return false;
+                }
+                // Проверяем значения узлов
+                if (curr1 && curr2 && curr1->value != curr2->value) {
+                    return false;
+                }
+                // Добавляем узлы в стеки и переходим к левым потомкам
+                if (curr1) {
+                    stack1.Push(curr1);
+                    curr1 = curr1->left;
+                }
+                if (curr2) {
+                    stack2.Push(curr2);
+                    curr2 = curr2->left;
+                }
             }
-            if (curr1 || curr2) return false; // Разная структура
-
+            // Если стеки имеют разное количество узлов, структура отличается
+            if (stack1.IsEmpty() != stack2.IsEmpty()) {
+                return false;
+            }
+            // Если стеки пусты, обход завершен
+            if (stack1.IsEmpty() && stack2.IsEmpty()) {
+                break;
+            }
+            // Переходим к правым поддеревьям
             curr1 = stack1.Top()->right;
             curr2 = stack2.Top()->right;
             stack1.Pop();
             stack2.Pop();
         }
-        return true;
+        // Деревья равны, если обход завершился одновременно
+        return stack1.IsEmpty() && stack2.IsEmpty();
     }
 };
