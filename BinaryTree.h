@@ -634,13 +634,11 @@ public:
         if (!result) {
             throw std::runtime_error("Memory allocation failed for new tree");
         }
-        // Use LNR traversal to get elements in order
         Sequence<T>* seq = LNR();
         if (!seq) {
             delete result;
             throw std::runtime_error("Failed to get traversal sequence");
         }
-        // Insert elements that satisfy the predicate
         for (int i = 0; i < seq->GetLength(); ++i) {
             T value = (*dynamic_cast<ArraySequence<T>*>(seq))[i];
             if (predicate(value)) {
@@ -681,7 +679,6 @@ public:
         return false;
     }
     bool compareSubtrees(const Node* a, const Node* b) const { // для понимания нода a - это корень дерева (поддерева исходного дерева)
-        //а нода b - нода, являющаяся корнем дерева, которое проверяется на вхождение как поддерево в дерево A
         Stack<const Node*> stackA;
         Stack<const Node*> stackB;
 
