@@ -39,7 +39,6 @@ public:
         for (int i = 0; i < elements->GetLength(); ++i) {
             result->insert(elements->Get(i));
         }
-
         delete elements;
         return result;
     }
@@ -52,37 +51,31 @@ public:
                 result->insert(elements->Get(i));
             }
         }
-
         delete elements;
         return result;
     }
     Set<T>* differenceWith(const Set<T>& other) const {
         Set<T>* result=new Set<T>;
         auto elements = this->toSequence();
-
         for (int i = 0; i < elements->GetLength(); ++i) {
             if (!(other.contains(elements->Get(i)))) {
                 result->insert(elements->Get(i));
             }
         }
-
         delete elements;
         return result;
     }
     bool isSubsetOf(const Set<T>& other) const {
         auto elements = this->toSequence();
-
         for (int i = 0; i < elements->GetLength(); ++i) {
             if (!other.contains(elements->Get(i))) {
                 delete elements;
                 return false;
             }
         }
-
         delete elements;
         return true;
     }
-
     Sequence<T>* toSequence() const {
         return tree.LNR();
     }
@@ -92,7 +85,6 @@ public:
     bool isEmpty() const {
         return tree.isEmpty();
     }
-
     template <typename U>
     Set<U>* map(std::function<U(const T&)> func) const {
         Set<U>* result =new Set<U>(tree.map(func));
@@ -114,7 +106,6 @@ public:
         }
         Sequence<T>* seq1 = toSequence();
         Sequence<T>* seq2 = other.toSequence();
-
         for (int i = 0; i < seq1->GetLength(); ++i) {
             if (seq1->Get(i) != seq2->Get(i)) {
                 delete seq1;
@@ -122,7 +113,6 @@ public:
                 return false;
             }
         }
-
         delete seq1;
         delete seq2;
         return true;

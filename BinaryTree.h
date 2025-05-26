@@ -132,10 +132,8 @@ public:
 
     Node* findNode(const T& item) const {
         if (!root) return nullptr;
-
         Stack<Node*> stack;
         Node* current = root;
-
         while (!stack.IsEmpty() || current) {
             while (current) {
                 stack.Push(current);
@@ -147,7 +145,6 @@ public:
             if (current->value == item) {
                 return current;
             }
-
             current = current->right;
         }
         return nullptr;
@@ -159,7 +156,6 @@ public:
         if (!x->right) {
             throw std::invalid_argument("Нельзя выполнить левый поворот: отсутствует правый потомок");
         }
-
         Node* y = x->right;
         x->right = y->left;
         if (y->left) {
@@ -176,10 +172,8 @@ public:
         else {
             x->parent->right = y;
         }
-
         y->left = x;
         x->parent = y;
-
         updateHeight(x);
         updateHeight(y);
         return y;
@@ -191,7 +185,6 @@ public:
         if (!y->left) {
             throw std::invalid_argument("Нельзя выполнить правый поворот: отсутствует левый потомок");
         }
-
         Node* x = y->left;
         y->left = x->right;
         if (x->right) {
@@ -208,10 +201,8 @@ public:
         else {
             y->parent->right = x;
         }
-
         x->right = y;
         y->parent = x;
-
         updateHeight(y);
         updateHeight(x);
         return x;
@@ -224,7 +215,6 @@ public:
             updateHeight(newNode);
             return this;
         }
-
         Node* current = root;
         Node* parent = nullptr;
         while (current) {
@@ -232,7 +222,6 @@ public:
             if (current->value == item) return this;
             current = (item < current->value) ? current->left : current->right;
         }
-
         newNode->parent = parent;
         if (item < parent->value) {
             parent->left = newNode;
@@ -241,7 +230,6 @@ public:
             parent->right = newNode;
         }
         nodeCount++;
-
         Node* balanceNode = parent;
         while (balanceNode) {
             updateHeight(balanceNode);
@@ -278,24 +266,19 @@ public:
         if (!result) {
             throw std::runtime_error("Не удалось выделить память для результата обхода");
         }
-
-        if (!root) return result; // Пустое дерево
-
+        if (!root) return result;
         Node* current = root;
         Stack<Node*> stack;
-
         while (!stack.IsEmpty() || current) {
             while (current) {
                 stack.Push(current);
                 current = current->left;
             }
-
             current = stack.Top();
             stack.Pop();
             result->Append(current->value);
             current = current->right;
         }
-
         return result;
     }
     Sequence<T>* RNL() const {
@@ -306,19 +289,16 @@ public:
         if (!root) return result;
         Node* current = root;
         Stack<Node*> stack;
-
         while (!stack.IsEmpty() || current) {
             while (current) {
                 stack.Push(current);
                 current = current->right;
             }
-
             current = stack.Top();
             stack.Pop();
             result->Append(current->value);
             current = current->left;
         }
-
         return result;
     }
     Sequence<T>* NLR() const {
@@ -326,22 +306,18 @@ public:
         if (!result) {
             throw std::runtime_error("Ошибка выделения памяти для результата обхода");
         }
-
         if (!root) return result;
         Stack<Node*> stack;
         stack.Push(root);
-
         while (!stack.IsEmpty()) {
             Node* current = stack.Top();
             stack.Pop();
-
             if (current) {
                 result->Append(current->value);
                 stack.Push(current->right);
                 stack.Push(current->left);
             }
         }
-
         return result;
     }
     Sequence<T>* NRL() const {
@@ -349,24 +325,18 @@ public:
         if (!result) {
             throw std::runtime_error("Ошибка выделения памяти для результата обхода");
         }
-
-        if (!root) return result; // Пустое дерево
-
+        if (!root) return result;
         Stack<Node*> stack;
-        stack.Push(root); // Начинаем с корня
-
+        stack.Push(root);
         while (!stack.IsEmpty()) {
             Node* current = stack.Top();
             stack.Pop();
-
             if (current) {
-                result->Append(current->value); // Добавляем значение текущего узла
-                // Сначала пушим левое поддерево, чтобы обработать его после правого
+                result->Append(current->value);
                 stack.Push(current->left);
-                stack.Push(current->right); // Правое поддерево обрабатывается первым
+                stack.Push(current->right);
             }
         }
-
         return result;
     }
     Sequence<T>* RLN() const {
@@ -437,18 +407,13 @@ public:
     BinaryTree* remove(T item) {
         Node* current = root;
         Node* parent = nullptr;
-
-        // Поиск узла с заданным значением
         while (current && current->value != item) {
             parent = current;
             current = (item < current->value) ? current->left : current->right;
         }
-
         if (!current) {
             return this;
         }
-
-        // Случай 1: Удаляемый узел — лист
         if (!current->left && !current->right) {
             if (current == root) {
                 root = nullptr;
@@ -462,10 +427,8 @@ public:
             delete current;
             nodeCount--;
         }
-        // Случай 2: Удаляемый узел имеет одного потомка
         else if (!current->left || !current->right) {
             Node* child = current->left ? current->left : current->right;
-
             if (current == root) {
                 root = child;
                 child->parent = nullptr;
@@ -478,28 +441,20 @@ public:
                 parent->right = child;
                 child->parent = parent;
             }
-
-            // Важно: не удаляем детей текущего узла, так как мы их переносим
             current->left = nullptr;
             current->right = nullptr;
             delete current;
             nodeCount--;
-
-            // Обновляем баланс начиная с родителя
             parent = child ? child : parent;
         }
-        // Случай 3: Удаляемый узел имеет двух потомков
         else {
             Node* successor = current->right;
             Node* successorParent = current;
-
             while (successor->left) {
                 successorParent = successor;
                 successor = successor->left;
             }
-
             current->value = successor->value;
-
             if (successorParent->left == successor) {
                 successorParent->left = successor->right;
                 if (successor->right) successor->right->parent = successorParent;
@@ -508,23 +463,16 @@ public:
                 successorParent->right = successor->right;
                 if (successor->right) successor->right->parent = successorParent;
             }
-
-            // Обновляем баланс начиная с родителя преемника
             parent = successorParent;
-
             successor->left = nullptr;
             successor->right = nullptr;
             delete successor;
             nodeCount--;
         }
-
-        // Перебалансировка
         Node* balanceNode = parent;
         while (balanceNode) {
             updateHeight(balanceNode);
             int balance = getBalanceFactor(balanceNode);
-
-            // LL
             if (balance > 1 && getBalanceFactor(balanceNode->left) >= 0) {
                 if (balanceNode == root) {
                     root = RightRotate(balanceNode);
@@ -542,7 +490,6 @@ public:
                     }
                 }
             }
-            // LR
             else if (balance > 1 && getBalanceFactor(balanceNode->left) < 0) {
                 balanceNode->left = LeftRotate(balanceNode->left);
                 if (balanceNode->left) balanceNode->left->parent = balanceNode;
@@ -562,7 +509,6 @@ public:
                     }
                 }
             }
-            // RR
             else if (balance < -1 && getBalanceFactor(balanceNode->right) <= 0) {
                 if (balanceNode == root) {
                     root = LeftRotate(balanceNode);
@@ -580,7 +526,6 @@ public:
                     }
                 }
             }
-            // RL
             else if (balance < -1 && getBalanceFactor(balanceNode->right) > 0) {
                 balanceNode->right = RightRotate(balanceNode->right);
                 if (balanceNode->right) balanceNode->right->parent = balanceNode;
@@ -651,7 +596,6 @@ public:
     BinaryTree<T>* extractSubtree(const T& item) const {
         Node* subtreeRoot = findNode(item); 
         if (!subtreeRoot) return nullptr;
-
         Node* copiedSubtree = copyTree(subtreeRoot);
         return new BinaryTree<T>(copiedSubtree);
     }
@@ -660,10 +604,8 @@ public:
         const Node* subRoot = subtree.getRoot();
         if (!subRoot) return true;
         if (!root) return false;
-
         Stack<const Node*> stack;
         stack.Push(root);
-
         while (!stack.IsEmpty()) {
             const Node* current = stack.Top();
             stack.Pop();
@@ -672,7 +614,6 @@ public:
                     return true;
                 }
             }
-
             if (current->right) stack.Push(current->right);
             if (current->left) stack.Push(current->left);
         }
@@ -729,27 +670,22 @@ public:
         if (!func) {
             throw std::invalid_argument("Null function pointer passed to reduce");
         }
-
         if (!root) {
             return initial;
         }
-
         Sequence<T>* seq = LNR();
         if (!seq) {
             throw std::runtime_error("Failed to get traversal sequence");
         }
-
         T result = initial;
         ArraySequence<T>* arrSeq = dynamic_cast<ArraySequence<T>*>(seq);
         if (!arrSeq) {
             delete seq;
             throw std::runtime_error("Failed to cast Sequence to ArraySequence");
         }
-
         for (int i = 0; i < arrSeq->GetLength(); ++i) {
             result = func(result, (*arrSeq)[i]);
         }
-
         delete seq;
         return result;
     }
@@ -782,7 +718,6 @@ public:
         Stack<const Node*> stack1, stack2;
         const Node* curr1 = root;
         const Node* curr2 = other.root;
-
         while (!stack1.IsEmpty() || curr1 || !stack2.IsEmpty() || curr2) {
             while (curr1 || curr2) {
                 if ((curr1 && !curr2) || (!curr1 && curr2)) {
