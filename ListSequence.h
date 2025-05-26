@@ -108,7 +108,7 @@ public:
     T Reduce(Func_T_T<T> func, T start) const override {
         T result = start;
         for (int i = 0; i < list.GetLength(); i++) {
-            result = func(result, list[i]);
+            result = func(list[i], result);
         }
         return result;
     }

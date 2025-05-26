@@ -98,12 +98,10 @@ public:
         Set<U>* result =new Set<U>(tree.map(func));
         return result;
     }
-
     Set<T>* where(std::function<bool(const T&)> predicate) const {
         Set<T>* result=new Set<T>(*tree.where(predicate));
         return result;
     }
-
     T reduce(std::function<T(const T&, const T&)> func, const T& initial) const {
         return tree.Reduce(func, initial);
     }

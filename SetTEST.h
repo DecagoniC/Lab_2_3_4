@@ -5,7 +5,32 @@
 #include <functional>
 #include "Set.h"
 #include "ArraySequence.h"
-
+class Person {
+protected:
+    std::string name;
+    int age;
+public:
+    Person() : name("nobody"), age(18) {}
+    Person(std::string name, int age) : name(name), age(age) {}
+    bool operator==(const Person& human) const {
+        return name == human.name && age == human.age;
+    }
+    bool operator>(const Person& human) const {
+        return age > human.age;
+    }
+    bool operator<(const Person& human) const {
+        return age < human.age;
+    }
+};
+class Student : public Person {
+protected:
+    std::string university;
+public:
+    Student() : Person(), university("SFU") {}
+    Student(std::string name, int age, std::string university)
+        : Person(name, age), university(university) {
+    }
+};
 struct Point {
     int x, y;
 
@@ -157,6 +182,53 @@ void testSetConstructors() {
     catch (const std::exception& e) {
         std::cout << "Test 8: Failed with exception: " << e.what() << "\n";
     }
+    // Test 9: Array constructor with Person
+    try {
+        Person people[] = { {"Alice", 25}, {"Bob", 30}, {"Charlie", 35} };
+        Set<Person> set(people, 3);
+        std::cout << "Test 9: Array constructor with Person - ";
+        if (set.size() == 3 && set.contains({ "Alice", 25 }) && set.contains({ "Bob", 30 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 9: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 10: Array constructor with Student
+    try {
+        Student students[] = { {"Alice", 20, "MIT"}, {"Bob", 22, "Stanford"} };
+        Set<Student> set(students, 2);
+        std::cout << "Test 10: Array constructor with Student - ";
+        if (set.size() == 2 && set.contains({ "Alice", 20, "MIT" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 10: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 11: Array constructor with strings
+    try {
+        std::string items[] = { "apple", "banana", "cherry" };
+        Set<std::string> set(items, 3);
+        std::cout << "Test 11: Array constructor with strings - ";
+        if (set.size() == 3 && set.contains("banana") && !set.contains("orange")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 11: Failed with exception: " << e.what() << "\n";
+    }
 }
 void testSetInsert() {
     std::cout << "=== Set Insert Testing ===\n";
@@ -207,6 +279,53 @@ void testSetInsert() {
     }
     catch (const std::exception& e) {
         std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+    // Test 4: Insert Person objects
+    try {
+        Set<Person> set;
+        set.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+        std::cout << "Test 4: Insert Person objects - ";
+        if (set.size() == 2 && set.contains({ "Alice", 25 }) && !set.contains({ "Charlie", 35 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Insert Student objects
+    try {
+        Set<Student> set;
+        set.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+        std::cout << "Test 5: Insert Student objects - ";
+        if (set.size() == 2 && set.contains({ "Alice", 20, "MIT" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 5: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 6: Insert strings with different cases
+    try {
+        Set<std::string> set;
+        set.insert("Apple")->insert("apple");
+        std::cout << "Test 6: Insert strings with different cases - ";
+        if (set.size() == 2 && set.contains("Apple") && set.contains("apple")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 6: Failed with exception: " << e.what() << "\n";
     }
 }
 void testSetRemove() {
@@ -260,6 +379,56 @@ void testSetRemove() {
     }
     catch (const std::exception& e) {
         std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+    // Test 4: Remove Person object
+    try {
+        Set<Person> set;
+        set.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+        set.remove({ "Alice", 25 });
+        std::cout << "Test 4: Remove Person object - ";
+        if (set.size() == 1 && !set.contains({ "Alice", 25 }) && set.contains({ "Bob", 30 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Remove Student object
+    try {
+        Set<Student> set;
+        set.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+        set.remove({ "Alice", 20, "MIT" });
+        std::cout << "Test 5: Remove Student object - ";
+        if (set.size() == 1 && !set.contains({ "Alice", 20, "MIT" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 5: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 6: Remove string
+    try {
+        Set<std::string> set;
+        set.insert("apple")->insert("banana");
+        set.remove("apple");
+        std::cout << "Test 6: Remove string - ";
+        if (set.size() == 1 && !set.contains("apple") && set.contains("banana")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 6: Failed with exception: " << e.what() << "\n";
     }
 }
 void testSetContains() {
@@ -315,6 +484,53 @@ void testSetContains() {
     }
     catch (const std::exception& e) {
         std::cout << "Test 3: Failed with exception: " << e.what() << "\n";
+    }
+    // Test 4: Contains with Person
+    try {
+        Set<Person> set;
+        set.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+        std::cout << "Test 4: Contains with Person - ";
+        if (set.contains({ "Alice", 25 }) && !set.contains({ "Charlie", 35 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 4: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 5: Contains with Student
+    try {
+        Set<Student> set;
+        set.insert({ "Alice", 20, "MIT" });
+        std::cout << "Test 5: Contains with Student - ";
+        if (set.contains({ "Alice", 20, "MIT" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 5: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 6: Contains with strings
+    try {
+        Set<std::string> set;
+        set.insert("apple")->insert("banana");
+        std::cout << "Test 6: Contains with strings - ";
+        if (set.contains("banana") && !set.contains("orange")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 6: Failed with exception: " << e.what() << "\n";
     }
 }
 void testSetUnion() {
@@ -435,7 +651,7 @@ void testSetUnion() {
         Set<int> set2;
         for (int i = 0; i < 100; ++i) {
             set1.insert(i);
-            set2.insert(i + 50); // Overlap from 50 to 99
+            set2.insert(i + 50);
         }
         Set<int>* result = set1.unionWith(set2);
         std::cout << "Test 6: Union of large sets with overlap - ";
@@ -453,6 +669,73 @@ void testSetUnion() {
     }
     catch (const std::exception& e) {
         std::cout << "Test 6: Failed with exception: " << e.what() << "\n";
+    }
+    // Test 7: Union with Person sets
+    try {
+        Set<Person> set1;
+        set1.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+        Set<Person> set2;
+        set2.insert({ "Bob", 30 })->insert({ "Charlie", 35 });
+        Set<Person>* result = set1.unionWith(set2);
+        std::cout << "Test 7: Union with Person sets - ";
+        if (result->size() == 3 &&
+            result->contains({ "Alice", 25 }) &&
+            result->contains({ "Bob", 30 }) &&
+            result->contains({ "Charlie", 35 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 7: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 8: Union with Student sets
+    try {
+        Set<Student> set1;
+        set1.insert({ "Alice", 20, "MIT" });
+        Set<Student> set2;
+        set2.insert({ "Bob", 22, "Stanford" });
+        Set<Student>* result = set1.unionWith(set2);
+        std::cout << "Test 8: Union with Student sets - ";
+        if (result->size() == 2 &&
+            result->contains({ "Alice", 20, "MIT" }) &&
+            result->contains({ "Bob", 22, "Stanford" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 8: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 9: Union with string sets
+    try {
+        Set<std::string> set1;
+        set1.insert("apple")->insert("banana");
+        Set<std::string> set2;
+        set2.insert("banana")->insert("cherry");
+        Set<std::string>* result = set1.unionWith(set2);
+        std::cout << "Test 9: Union with string sets - ";
+        if (result->size() == 3 &&
+            result->contains("apple") &&
+            result->contains("banana") &&
+            result->contains("cherry")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 9: Failed with exception: " << e.what() << "\n";
     }
 }
 void testSetIntersection() {
@@ -566,9 +849,9 @@ void testSetIntersection() {
         Set<int> set1;
         Set<int> set2;
         for (int i = 0; i < 100; ++i) {
-            set1.insert(i); // {0, 1, ..., 99}
+            set1.insert(i);
             if (i >= 50) {
-                set2.insert(i); // {50, 51, ..., 99}
+                set2.insert(i);
             }
         }
         Set<int>* result = set1.intersectionWith(set2);
@@ -586,6 +869,67 @@ void testSetIntersection() {
     }
     catch (const std::exception& e) {
         std::cout << "Test 6: Failed with exception: " << e.what() << "\n";
+    }
+    try {
+        Set<Person> set1;
+        set1.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+        Set<Person> set2;
+        set2.insert({ "Bob", 30 })->insert({ "Charlie", 35 });
+        Set<Person>* result = set1.intersectionWith(set2);
+        std::cout << "Test 7: Intersection with Person sets - ";
+        if (result->size() == 1 && result->contains({ "Bob", 30 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 7: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 8: Intersection with Student sets
+    try {
+        Set<Student> set1;
+        set1.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+        Set<Student> set2;
+        set2.insert({ "Bob", 22, "Stanford" })->insert({ "Charlie", 23, "Harvard" });
+        Set<Student>* result = set1.intersectionWith(set2);
+        std::cout << "Test 8: Intersection with Student sets - ";
+        if (result->size() == 1 && result->contains({ "Bob", 22, "Stanford" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 8: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 9: Intersection with string sets
+    try {
+        Set<std::string> set1;
+        set1.insert("apple")->insert("banana")->insert("cherry");
+        Set<std::string> set2;
+        set2.insert("banana")->insert("cherry")->insert("date");
+        Set<std::string>* result = set1.intersectionWith(set2);
+        std::cout << "Test 9: Intersection with string sets - ";
+        if (result->size() == 2 &&
+            result->contains("banana") &&
+            result->contains("cherry") &&
+            !result->contains("apple")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 9: Failed with exception: " << e.what() << "\n";
     }
 }
 void testSetDifference() {
@@ -705,9 +1049,9 @@ void testSetDifference() {
         Set<int> set1;
         Set<int> set2;
         for (int i = 0; i < 100; ++i) {
-            set1.insert(i); // {0, 1, ..., 99}
+            set1.insert(i);
             if (i >= 50) {
-                set2.insert(i); // {50, 51, ..., 99}
+                set2.insert(i); 
             }
         }
         Set<int>* result = set1.differenceWith(set2);
@@ -725,6 +1069,70 @@ void testSetDifference() {
     }
     catch (const std::exception& e) {
         std::cout << "Test 6: Failed with exception: " << e.what() << "\n";
+    }
+    try {
+        Set<Person> set1;
+        set1.insert({ "Alice", 25 })->insert({ "Bob", 30 })->insert({ "Charlie", 35 });
+        Set<Person> set2;
+        set2.insert({ "Bob", 30 })->insert({ "David", 40 });
+        Set<Person>* result = set1.differenceWith(set2);
+        std::cout << "Test 7: Difference with Person sets - ";
+        if (result->size() == 2 &&
+            result->contains({ "Alice", 25 }) &&
+            result->contains({ "Charlie", 35 }) &&
+            !result->contains({ "Bob", 30 })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 7: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 8: Difference with Student sets
+    try {
+        Set<Student> set1;
+        set1.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+        Set<Student> set2;
+        set2.insert({ "Bob", 22, "Stanford" });
+        Set<Student>* result = set1.differenceWith(set2);
+        std::cout << "Test 8: Difference with Student sets - ";
+        if (result->size() == 1 && result->contains({ "Alice", 20, "MIT" })) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 8: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 9: Difference with string sets
+    try {
+        Set<std::string> set1;
+        set1.insert("apple")->insert("banana")->insert("cherry");
+        Set<std::string> set2;
+        set2.insert("banana")->insert("date");
+        Set<std::string>* result = set1.differenceWith(set2);
+        std::cout << "Test 9: Difference with string sets - ";
+        if (result->size() == 2 &&
+            result->contains("apple") &&
+            result->contains("cherry") &&
+            !result->contains("banana")) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+        delete result;
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 9: Failed with exception: " << e.what() << "\n";
     }
 }
 void testSetIsSubsetOf() {
@@ -829,6 +1237,59 @@ void testSetIsSubsetOf() {
         }
         else {
             std::cout << "Failed\n";
+        }
+        // Test 7: Subset with Person sets
+        try {
+            Set<Person> set1;
+            set1.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+            Set<Person> set2;
+            set2.insert({ "Alice", 25 })->insert({ "Bob", 30 })->insert({ "Charlie", 35 });
+            std::cout << "Test 7: Subset with Person sets - ";
+            if (set1.isSubsetOf(set2)) {
+                std::cout << "Passed\n";
+            }
+            else {
+                std::cout << "Failed\n";
+            }
+        }
+        catch (const std::exception& e) {
+            std::cout << "Test 7: Failed with exception: " << e.what() << "\n";
+        }
+
+        // Test 8: Subset with Student sets
+        try {
+            Set<Student> set1;
+            set1.insert({ "Alice", 20, "MIT" });
+            Set<Student> set2;
+            set2.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+            std::cout << "Test 8: Subset with Student sets - ";
+            if (set1.isSubsetOf(set2)) {
+                std::cout << "Passed\n";
+            }
+            else {
+                std::cout << "Failed\n";
+            }
+        }
+        catch (const std::exception& e) {
+            std::cout << "Test 8: Failed with exception: " << e.what() << "\n";
+        }
+
+        // Test 9: Subset with string sets
+        try {
+            Set<std::string> set1;
+            set1.insert("banana")->insert("cherry");
+            Set<std::string> set2;
+            set2.insert("apple")->insert("banana")->insert("cherry")->insert("date");
+            std::cout << "Test 9: Subset with string sets - ";
+            if (set1.isSubsetOf(set2)) {
+                std::cout << "Passed\n";
+            }
+            else {
+                std::cout << "Failed\n";
+            }
+        }
+        catch (const std::exception& e) {
+            std::cout << "Test 9: Failed with exception: " << e.what() << "\n";
         }
     }
     catch (const std::exception& e) {
@@ -1078,7 +1539,7 @@ void testSetWhere() {
         std::function<bool(const int&)> divisible_by_3 = [](const int& x) -> bool { return x % 3 == 0; };
         Set<int>* result = set.where(divisible_by_3);
         std::cout << "Test 6: Filter large set to keep numbers divisible by 3 - ";
-        if (result->size() == 33 && // 3, 6, ..., 99
+        if (result->size() == 33 &&
             result->contains(3) && result->contains(6) &&
             result->contains(99) && !result->contains(1) &&
             !result->contains(100)) {
@@ -1190,10 +1651,10 @@ void testSetEqual() {
         for (int i = 1; i <= 100; ++i) {
             set1.insert(i);
             if (i != 100) {
-                set2.insert(i); // set2 has {1, 2, ..., 99}
+                set2.insert(i);
             }
             else {
-                set2.insert(101); // Different element
+                set2.insert(101);
             }
         }
         std::cout << "Test 6: Compare large sets with one different element - ";
@@ -1211,9 +1672,9 @@ void testSetEqual() {
     // Test 7: Compare sets with same elements but different insertion order
     try {
         Set<int> set1;
-        set1.insert(2)->insert(1)->insert(3); // May produce: 1 <- 2 -> 3
+        set1.insert(2)->insert(1)->insert(3);
         Set<int> set2;
-        set2.insert(1)->insert(2)->insert(3); // May produce: 1 -> 2 -> 3
+        set2.insert(1)->insert(2)->insert(3);
         std::cout << "Test 7: Compare sets with same elements but different insertion order - ";
         if (set1 == set2) {
             std::cout << "Passed\n";
@@ -1225,7 +1686,64 @@ void testSetEqual() {
     catch (const std::exception& e) {
         std::cout << "Test 7: Failed with exception: " << e.what() << "\n";
     }
+    // Test 8: Equality with Person sets
+    try {
+        Set<Person> set1;
+        set1.insert({ "Alice", 25 })->insert({ "Bob", 30 });
+        Set<Person> set2;
+        set2.insert({ "Bob", 30 })->insert({ "Alice", 25 });
+        std::cout << "Test 8: Equality with Person sets - ";
+        if (set1 == set2) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 8: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 9: Equality with Student sets
+    try {
+        Set<Student> set1;
+        set1.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+        Set<Student> set2;
+        set2.insert({ "Alice", 20, "MIT" })->insert({ "Bob", 22, "Stanford" });
+        std::cout << "Test 9: Equality with Student sets - ";
+        if (set1 == set2) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 9: Failed with exception: " << e.what() << "\n";
+    }
+
+    // Test 10: Equality with string sets
+    try {
+        Set<std::string> set1;
+        set1.insert("apple")->insert("banana");
+        Set<std::string> set2;
+        set2.insert("banana")->insert("apple");
+        std::cout << "Test 10: Equality with string sets - ";
+        if (set1 == set2) {
+            std::cout << "Passed\n";
+        }
+        else {
+            std::cout << "Failed\n";
+        }
+    }
+    catch (const std::exception& e) {
+        std::cout << "Test 10: Failed with exception: " << e.what() << "\n";
+    }
 }
+
+
+
+
 
 
 void testSet() {

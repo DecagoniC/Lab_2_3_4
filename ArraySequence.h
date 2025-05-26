@@ -92,7 +92,7 @@ public:
     T Reduce(Func_T_T<T> func, T start) const override {
         T result=start;
         for (int i = 0; i < array.GetLength(); i++) {
-            result = func(result, array[i]);
+            result = func(array[i], result);
         }
         return result;
     }

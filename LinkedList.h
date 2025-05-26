@@ -108,7 +108,7 @@ public:
     int GetLength() const {
         return length;
     }
-    void To_String() const {  // C++20 concept
+    void To_String() const { 
         if (length != 0) std::cout << "[";
         else std::cout << "[]\n";
         for (int i = 0; i < GetLength(); i++) {

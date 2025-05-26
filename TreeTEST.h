@@ -244,7 +244,7 @@ void testBinaryTreeReduce() {
             [](const int& acc, const int& val) { return acc + val; }, 0
         );
         std::cout << "Test 1: Sum reduction - ";
-        if (sum == 33) { // 3 + 5 + 10 + 15
+        if (sum == 33) {
             std::cout << "Passed\n";
         }
         else {
@@ -263,7 +263,7 @@ void testBinaryTreeReduce() {
             [](const int& acc, const int& val) { return acc * val; }, 1
         );
         std::cout << "Test 2: Product reduction - ";
-        if (product == 2250) { // 3 * 5 * 10 * 15
+        if (product == 2250) {
             std::cout << "Passed\n";
         }
         else {
