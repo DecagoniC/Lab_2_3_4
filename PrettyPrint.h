@@ -7,19 +7,6 @@ public:
         : indent_(indent), separator_(separator) {
     }
 
-    template<typename T>
-    bool print(const T& item, std::ostream& os = std::cout) const {
-        if (!os) return false;
-        (*this)(item, os); // Используем operator()
-        os << "\n";
-        return true;
-    }
-
-    template<typename T>
-    void operator()(const T& item, std::ostream& os = std::cout) const {
-        os << item; // Будет использовать operator<< для типа T
-    }
-
     PrettyPrinter setIndent(const std::string& indent) const {
         return PrettyPrinter(indent, separator_);
     }
