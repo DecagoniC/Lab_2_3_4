@@ -387,4 +387,32 @@ public:
             curr += data[i].storage;
         }
     }
+    void To_PrettyString(const PrettyPrinter& printer = prettyprinter, std::ostream& os = std::cout) const {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
+        os << "[";
+        if (len > 0) {
+            for (int i = 0; i < len; ++i) {
+                os << Get(i);
+                if (i < len - 1) {
+                    os << printer.getSeparator();
+                }
+            }
+        }
+        os << "]\n";
+    }
+    friend std::ostream& operator<<(std::ostream& os, const SegmentedList<T>& arr) {
+        const PrettyPrinter& printer = prettyprinter;
+        os << "[";
+        for (int i = 0; i < arr.GetLength(); ++i) {
+            os << arr.Get(i);
+            if (i < arr.GetLength() - 1) {
+                os << printer.getSeparator();
+            }
+        }
+        os << "]";
+        return os;
+    }
 };

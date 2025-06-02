@@ -242,12 +242,30 @@ public:
         }
         return data[index + correct];
     }
-    friend std::ostream& operator<<(std::ostream& os, const AdaptiveSequence<T>& arr) {
+    
+    void To_PrettyString(const PrettyPrinter& printer = prettyprinter, std::ostream& os = std::cout) const {
+        static_assert(
+            std::is_same_v<decltype(std::declval<std::ostream&>() << std::declval<T>()), std::ostream&>,
+            "T must be printable with std::ostream"
+            );
         os << "[";
-        for (int i = 0; i < arr.length; i++) {
+        if (length > 0) {
+            for (int i = 0; i < length; ++i) {
+                os << Get(i);
+                if (i < length - 1) {
+                    os << printer.getSeparator();
+                }
+            }
+        }
+        os << "]\n";
+    }
+    friend std::ostream& operator<<(std::ostream& os, const AdaptiveSequence<T>& arr) {
+        const PrettyPrinter& printer = prettyprinter;
+        os << "[";
+        for (int i = 0; i < arr.GetLength(); ++i) {
             os << arr.Get(i);
-            if (i < arr.length - 1) {
-                os << "; ";
+            if (i < arr.GetLength() - 1) {
+                os << printer.getSeparator();
             }
         }
         os << "]";

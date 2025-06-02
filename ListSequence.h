@@ -26,10 +26,6 @@ public:
         list.RemoveAt(index);
     }
 
-
-
-
-
     T GetFirst() const override {
         return list.GetFirst();
     }
@@ -123,5 +119,12 @@ public:
             throw std::out_of_range("Index out of bounds");
         }
         return list[index];
+    }
+    void To_PrettyString(const PrettyPrinter& printer = prettyprinter, std::ostream& os = std::cout) const {
+        list.To_PrettyString(printer, os);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const ListSequence<T>& arr) {
+        os << arr.list;
+        return os;
     }
 };

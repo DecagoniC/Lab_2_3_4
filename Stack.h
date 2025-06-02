@@ -56,4 +56,9 @@ public:
     void Print() const {
         this->To_String();
     }
+    using ListSequence<T>::To_PrettyString;
+    friend std::ostream& operator<<(std::ostream& os, const Stack<T>& stack) {
+        os << static_cast<const ListSequence<T>&>(stack);
+        return os;
+    }
 };

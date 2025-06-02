@@ -108,4 +108,11 @@ public:
         }
         return array[index];
     }
+    void To_PrettyString(const PrettyPrinter& printer = prettyprinter, std::ostream& os = std::cout) const {
+        array.To_PrettyString(printer, os);
+    }
+    friend std::ostream& operator<<(std::ostream& os, const ArraySequence<T>& arr) {
+        os << arr.array;
+        return os;
+    }
 };

@@ -6,7 +6,7 @@
 #include "Set.h"
 #include "ArraySequence.h"
 class Person {
-protected:
+public:
     std::string name;
     int age;
 public:
@@ -23,7 +23,7 @@ public:
     }
 };
 class Student : public Person {
-protected:
+public:
     std::string university;
 public:
     Student() : Person(), university("SFU") {}
